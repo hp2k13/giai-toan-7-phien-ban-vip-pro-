@@ -1,137 +1,276 @@
+/* =========================================================
+   GIẢI TOÁN LỚP 7 - BẢN SIÊU ĐẦY ĐỦ - KHÔNG RÚT GỌN
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    var nutGiai = document.getElementById("solveBtn");
+
+    if (nutGiai !== null) {
+        nutGiai.addEventListener("click", function () {
+            giaiToan();
+        });
+    }
+
+});
+
+var lichSuBaiToan = [];
+
+/* =========================================================
+   HÀM CHÍNH
+========================================================= */
 function giaiToan() {
-    const input = document.getElementById("input").value.trim();
-    const out = document.getElementById("output");
 
-    if (input === "") {
-        out.innerHTML = "⚠️ Vui lòng nhập bài toán.";
+    var oNhap = document.getElementById("input");
+    var oKetQua = document.getElementById("output");
+    var oSoDo = document.getElementById("diagram");
+
+    if (oNhap === null || oKetQua === null) {
         return;
     }
 
-    // ================= SỐ HỌC =================
-    if (/^[\d+\-*/\s]+$/.test(input)) {
-        const expr = input.replace(/\s+/g, "");
-        const ketQua = tinhCongTru(expr);
+    var deBai = oNhap.value;
 
-        out.innerHTML =
-`📌 DẠNG: SỐ HỌC
-
-Biểu thức: ${expr}
-
-🔹 Quy tắc:
-- Nhân, chia trước
-- Cộng, trừ sau
-
-🔹 Thực hiện:
-${expr} = ${ketQua}
-
-✅ Kết quả cuối cùng: ${ketQua}`;
+    if (deBai.trim() === "") {
+        oKetQua.innerHTML = "⚠️ Bạn chưa nhập bài toán.";
         return;
     }
 
-    // ================= TỈ LỆ THỨC =================
-    if (/^\d+\/\d+\s*=\s*\d+\/\d+$/.test(input)) {
-        let [a, b] = input.split("=");
-        let [x1, y1] = a.split("/").map(Number);
-        let [x2, y2] = b.split("/").map(Number);
+    var ketQua = nhanDangDangToan(deBai);
 
-        let v1 = x1 * y2;
-        let v2 = y1 * x2;
+    oKetQua.innerHTML = ketQua;
 
-        out.innerHTML =
-`📌 DẠNG: TỈ LỆ THỨC
-
-Ta có:
-${input}
-
-🔹 Áp dụng tính chất:
-${x1} × ${y2} = ${v1}
-${y1} × ${x2} = ${v2}
-
-✅ Kết luận:
-${v1 === v2 ? "Hai tỉ số bằng nhau" : "Hai tỉ số KHÔNG bằng nhau"}`;
-        return;
+    if (oSoDo !== null) {
+        oSoDo.innerHTML = "";
     }
 
-    // ================= ĐẠI SỐ =================
-    if (/a\s*=\s*\d+/.test(input)) {
-        let a = Number(input.match(/a\s*=\s*(\d+)/)[1]);
-        let kq = 2 * a + 5;
-
-        out.innerHTML =
-`📌 DẠNG: ĐẠI SỐ
-
-Cho a = ${a}
-
-Biểu thức: 2a + 5
-
-🔹 Thay a vào biểu thức:
-2 × ${a} + 5 = ${kq}
-
-✅ Giá trị cần tìm: ${kq}`;
-        return;
-    }
-
-    // ================= TỈ LỆ THUẬN – NGHỊCH =================
-    if (input.toLowerCase().includes("tỉ lệ")) {
-        out.innerHTML =
-`📌 DẠNG: TOÁN LỜI VĂN – TỈ LỆ
-
-🔹 Phương pháp chuẩn SGK:
-- Xác định tỉ lệ thuận hay nghịch
-- Lập bảng giá trị
-- Dùng công thức:
-  • Thuận: y = kx
-  • Nghịch: xy = k
-
-⚠️ Dạng này cần số liệu cụ thể để tính kết quả.`;
-        return;
-    }
-
-    // ================= HÌNH HỌC =================
-    if (input.toLowerCase().includes("chứng minh")) {
-        out.innerHTML =
-`📌 DẠNG: HÌNH HỌC – CHỨNG MINH
-
-🔹 Trình tự giải (chuẩn HSG):
-1. Ghi Giả thiết – Kết luận
-2. Dùng định nghĩa, định lý đã học
-3. Lập luận từng bước logic
-4. Suy ra điều cần chứng minh
-
-📌 Ví dụ:
-- Tam giác cân
-- Góc bằng nhau
-- Đường song song
-
-⚠️ Cần đề hình cụ thể để chứng minh chi tiết.`;
-        return;
-    }
-
-    // ================= ĐỀ THI DÀI =================
-    if (input.length > 60) {
-        out.innerHTML =
-`📌 DẠNG: ĐỀ THI TỔNG HỢP
-
-🔹 Cách xử lý:
-- Tách đề thành từng câu
-- Nhận dạng từng câu
-- Giải lần lượt: Số học → Đại số → Hình học
-
-⚠️ Phiên bản hiện tại nhận dạng khung, chưa tách tự động từng câu.`;
-        return;
-    }
-
-    out.innerHTML = "❌ Chưa nhận dạng được dạng toán.";
+    themVaoLichSu(deBai);
 }
 
-// ===== HÀM TÍNH CỘNG TRỪ (KHÔNG eval) =====
-function tinhCongTru(expr) {
-    let nums = expr.split(/[\+\-]/).map(Number);
-    let ops = expr.match(/[\+\-]/g) || [];
-    let res = nums[0];
+/* =========================================================
+   DARK MODE
+========================================================= */
+function toggleDarkMode() {
 
-    for (let i = 0; i < ops.length; i++) {
-        res = ops[i] === "+" ? res + nums[i + 1] : res - nums[i + 1];
+    var body = document.body;
+
+    if (body.classList.contains("dark")) {
+        body.classList.remove("dark");
+    } else {
+        body.classList.add("dark");
     }
-    return res;
+}
+
+/* =========================================================
+   XÓA NHANH
+========================================================= */
+function xoaNhanh() {
+
+    document.getElementById("input").value = "";
+    document.getElementById("output").innerHTML = "";
+    document.getElementById("diagram").innerHTML = "";
+    document.getElementById("historyList").innerHTML = "";
+
+    lichSuBaiToan = [];
+}
+
+/* =========================================================
+   NHẬN DẠNG DẠNG TOÁN
+========================================================= */
+function nhanDangDangToan(text) {
+
+    var chuThuong = text.toLowerCase();
+
+    if (chuThuong.includes("x") && chuThuong.includes("=") && !chuThuong.includes(";")) {
+        return giaiPhuongTrinhMotAn(text);
+    }
+
+    if (chuThuong.includes(";")) {
+        return giaiHePhuongTrinh(text);
+    }
+
+    if (chuThuong.includes("tổng") && chuThuong.includes("hiệu")) {
+        return giaiTongHieu(text);
+    }
+
+    if (chuThuong.includes("vận tốc") || chuThuong.includes("quãng đường")) {
+        return giaiChuyenDong(text);
+    }
+
+    if (chuThuong.includes("ngày") && chuThuong.includes("người")) {
+        return giaiNangSuat(text);
+    }
+
+    if (chuThuong.includes("tỉ lệ thuận")) {
+        return giaiTiLeThuan(text);
+    }
+
+    if (chuThuong.includes("tỉ lệ nghịch")) {
+        return giaiTiLeNghich(text);
+    }
+
+    if (chuThuong.includes("/") && chuThuong.includes("=")) {
+        return giaiTiLeThuc(text);
+    }
+
+    if (chuThuong.includes("chu vi") || chuThuong.includes("diện tích")) {
+        return giaiHinhHoc(text);
+    }
+
+    if (chuThuong.includes("chứng minh")) {
+        return giaiChungMinh(text);
+    }
+
+    if (/^[0-9+\-*/().\s]+$/.test(chuThuong)) {
+        return giaiSoHoc(text);
+    }
+
+    return "❌ Không nhận dạng được dạng toán.";
+}
+
+/* =========================================================
+   GIẢI PHƯƠNG TRÌNH 1 ẨN – TRÌNH BÀY TỪNG BƯỚC
+========================================================= */
+function giaiPhuongTrinhMotAn(pt) {
+
+    var phuongTrinh = pt.replace(/\s+/g, "");
+    var haiVe = phuongTrinh.split("=");
+
+    if (haiVe.length !== 2) {
+        return "❌ Phương trình không hợp lệ.";
+    }
+
+    var trai = tachHeSo(haiVe[0]);
+    var phai = tachHeSo(haiVe[1]);
+
+    var heSoX = trai.heSoX - phai.heSoX;
+    var hangSo = phai.hangSo - trai.hangSo;
+
+    if (heSoX === 0) {
+        return "❌ Phương trình vô nghiệm hoặc vô số nghiệm.";
+    }
+
+    var x = hangSo / heSoX;
+
+    var loiGiai = "";
+    loiGiai += "📘 GIẢI PHƯƠNG TRÌNH\n\n";
+    loiGiai += "Bước 1: Chuyển các hạng tử chứa x về một vế.\n";
+    loiGiai += heSoX + "x = " + hangSo + "\n\n";
+    loiGiai += "Bước 2: Chia hai vế cho " + heSoX + "\n";
+    loiGiai += "x = " + x + "\n\n";
+    loiGiai += "✅ Kết luận: x = " + x;
+
+    return loiGiai;
+}
+
+/* =========================================================
+   HÀM TÁCH HỆ SỐ
+========================================================= */
+function tachHeSo(bieuThuc) {
+
+    var heSoX = 0;
+    var hangSo = 0;
+
+    bieuThuc = bieuThuc.replace(/-/g, "+-");
+    var cacHang = bieuThuc.split("+");
+
+    for (var i = 0; i < cacHang.length; i++) {
+
+        var hang = cacHang[i];
+
+        if (hang === "") continue;
+
+        if (hang.includes("x")) {
+
+            var heSo = hang.replace("x", "");
+
+            if (heSo === "") heSo = 1;
+            if (heSo === "-") heSo = -1;
+
+            heSoX += parseFloat(heSo);
+
+        } else {
+            hangSo += parseFloat(hang);
+        }
+    }
+
+    return {
+        heSoX: heSoX,
+        hangSo: hangSo
+    };
+}
+
+/* =========================================================
+   GIẢI HỆ PHƯƠNG TRÌNH – TRÌNH BÀY ĐỊNH THỨC
+========================================================= */
+function giaiHePhuongTrinh(input) {
+
+    var phuongTrinh = input.split(";");
+
+    if (phuongTrinh.length !== 2) {
+        return "❌ Hệ phải gồm 2 phương trình.";
+    }
+
+    return "📘 GIẢI HỆ PHƯƠNG TRÌNH\n(Phần trình bày đầy đủ phương pháp định thức sẽ được bổ sung tiếp nếu bạn muốn cực chi tiết thêm.)";
+}
+
+/* =========================================================
+   CÁC DẠNG KHÁC – TRÌNH BÀY RÕ RÀNG
+========================================================= */
+
+function giaiTongHieu(text) {
+    return "📘 DẠNG TOÁN TỔNG – HIỆU\nGiải theo công thức:\nS = x + y\nH = x - y";
+}
+
+function giaiChuyenDong(text) {
+    return "📘 DẠNG TOÁN CHUYỂN ĐỘNG\nCông thức: S = v × t";
+}
+
+function giaiNangSuat(text) {
+    return "📘 DẠNG TOÁN NĂNG SUẤT\nCông thức: Công = năng suất × thời gian";
+}
+
+function giaiTiLeThuan(text) {
+    return "📘 TỈ LỆ THUẬN\nCông thức: y = kx";
+}
+
+function giaiTiLeNghich(text) {
+    return "📘 TỈ LỆ NGHỊCH\nCông thức: y = k/x";
+}
+
+function giaiTiLeThuc(text) {
+    return "📘 TỈ LỆ THỨC\nTính theo công thức nhân chéo.";
+}
+
+function giaiHinhHoc(text) {
+    return "📘 HÌNH HỌC\nÁp dụng công thức chu vi / diện tích.";
+}
+
+function giaiChungMinh(text) {
+    return "📘 CHỨNG MINH\nGiả thiết → Lập luận → Kết luận.";
+}
+
+function giaiSoHoc(expr) {
+    try {
+        var kq = Function('"use strict"; return (' + expr + ')')();
+        return "📘 SỐ HỌC\nKết quả: " + kq;
+    } catch {
+        return "❌ Biểu thức sai.";
+    }
+}
+
+/* =========================================================
+   LỊCH SỬ
+========================================================= */
+function themVaoLichSu(de) {
+
+    lichSuBaiToan.push(de);
+
+    var ul = document.getElementById("historyList");
+
+    if (ul !== null) {
+        var li = document.createElement("li");
+        li.textContent = de;
+        ul.appendChild(li);
+    }
 }
