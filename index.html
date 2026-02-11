@@ -2,27 +2,38 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Giải Toán Lớp 7</title>
+    <title>Giải Toán Lớp 7 - Version 4.0</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-    <h1>📘 Giải Toán Lớp 7</h1>
-    <p class="subtitle">
-        Nhận dạng tự động • Số học • Đại số • Tỉ lệ • Hình học • HSG
-    </p>
 
-    <textarea id="input" placeholder="
-Ví dụ:
-đầu tư vào HDPE là ngon luôn
-67 67 67 67 67 67
-36 tín hiệu var
-ai hỏi ai hỏi"></textarea>
+    <h1>📘 Website Giải Toán Lớp 7</h1>
+    <p class="subtitle">AI nhận dạng thông minh • Giải chi tiết • Hỗ trợ HSG nâng cao</p>
 
-    <button onclick="giaiToan()">GIẢI</button>
+    <div class="top-bar">
+        <button onclick="toggleDarkMode()">🌙 Dark Mode</button>
+        <button onclick="xoaNhanh()">🗑 Xóa nhanh</button>
+    </div>
 
-    <div id="output"></div>
+    <textarea id="input" placeholder="Nhập bài toán vào đây..."></textarea>
+
+    <button id="solveBtn">🚀 Giải bài toán</button>
+
+    <div class="main-content">
+        <div>
+            <div id="badge"></div>
+            <div id="output"></div>
+        </div>
+        <div id="diagram"></div>
+    </div>
+
+    <div id="history">
+        <h3>📜 Lịch sử bài đã giải</h3>
+        <ul id="historyList"></ul>
+    </div>
+
 </div>
 
 <script src="script.js"></script>
